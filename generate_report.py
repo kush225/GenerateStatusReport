@@ -1,8 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# Author :- Saurabh Pillai
-
 import markup
 import argparse
 from collections import defaultdict, OrderedDict
