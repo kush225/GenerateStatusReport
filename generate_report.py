@@ -137,13 +137,13 @@ def generate_htmlpage(
     for i in range(3):
         page.br()
     page.a('Click to see online reports',
-           href='http://10.10.30.37/reports/graphs/netjsagent/%s/%s/B%s'
+           href='http://10.0.0.0/reports/%s/%s/B%s'
             % (category.lower(), release, version),
            style='text-decoration: none; color: #263238;')
     for i in range(2):
         page.br()
 
-    page.div('Dashboard Team <br/>Cavisson Systems Inc.',
+    page.div('XYZ Team <br/>ABC private limited.',
              _class='signature')
     page.div.close()
     page.style(minified_css)
