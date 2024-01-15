@@ -1,6 +1,6 @@
-feature,MonitorGroup,name,testrun,categoryid,componentid,status,desc
-ETL,test,ETL-report,101,1,1,passed,
-ETL,test,ETL-report2,102,1,2,passed,
-ETL,test,ETL-report3,102,2,1,passed,
-ETL,test,ETL-report4,102,2,2,failed,
-DataDump,live,ETL-report4,102,2,2,failed,
+name,category,testrun,status,description
+ETL,test,101,pass,
+ETL,test,102,pass,
+ETL,test,103,pass,
+ETL,test,104,fail,Exception occured nullpointer
+DataDump,live,102,fail,Exception divide by zero

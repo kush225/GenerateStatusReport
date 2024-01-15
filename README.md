@@ -7,5 +7,5 @@ https://github.com/tylerbakke/MarkupPy.
 # To Generate the report
    > Run the below command:
    ```bash
-   python3 generate_report.py --category smoke --release 1.0.0 --version 1 --infile sample.csv --outfile ./output.html --starttime 2024/01/15,2:00 --endtime 2024/01/15,3:00 
+   python3 generate_report.py --category smoke --release 1.0.0 --version 1 --infile sample.csv --outfile ./output.html --starttime "15-01-2024, 2:00pm" --endtime "15-01-2024, 3:00pm"
    ```

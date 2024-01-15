@@ -6,26 +6,13 @@ import argparse
 from collections import defaultdict, OrderedDict
 
 HEADERS = ['Category', 'Total', 'Passed', 'Failed']
-
+is_header_in_file = True
 (failed_cases, passed_cases) = ([], [])
 
 minified_css = \
     '.container,table,td,th{border:1px solid #e0e0e0}body,th{color:#333}body{font-size:.9rem}.container{width:90%;padding:50px}table{border-collapse:collapse;width:80%}table,td,th{padding:10px;font-size:1em}th{background-color:#f5f5f5;text-align:left}.divider{border-top:1px solid #e0e0e0}.signature{color:#607d8b}.lead{font-size:1.68rem;color:#616161;font-weight:300}'
 
 feature_map = {}
-
-frequency_map = {
-    "mpstat": 1, 
-    "mpstat_lite": 10, 
-    "uptime": 14400, 
-    "uptimeex": 60, 
-    "cpustats": 600, 
-    "ps_thread_stats": 600, 
-    "test_all_graph_types": 60
-    }
-
-view_by_value = 60
-
 
 def generate_htmlpage(
     start_time,
@@ -89,8 +76,8 @@ def generate_htmlpage(
     page.table()
     page.caption('Performance Stats Report', _class='lead')
     page.tr()
-    page.th('Module')
-    page.th('View Type')
+    page.th('Name')
+    page.th('Category')
     page.th('Total')
     page.th('Passed', width='10%')
     page.th('Failed')
@@ -115,23 +102,17 @@ def generate_htmlpage(
         page.table()
         page.caption('Failed Cases', _class='lead')
         page.tr()
-        page.th('Module')
-        page.th('View Type')
-        page.th('CaseId')
-        page.th('View By')
-        page.th('Frequency')
+        page.th('Name')
+        page.th('Category')
         page.th('TestRun', width='10%')
         page.th('Description')
         page.tr.close()
         for cases in failed_cases:
             page.tr()
-            page.td(cases.get('feature'))
-            page.td(cases.get('MonitorGroup'))
             page.td(cases.get('name'))
-            page.td(view_by_value)
-            page.td(frequency_map[cases.get('name')])
+            page.td(cases.get('category'))
             page.td(cases.get('testrun'))
-            page.td(cases.get('desc'))
+            page.td(cases.get('description'))
             page.tr.close()
         page.table.close()
     for i in range(3):
@@ -153,50 +134,52 @@ def generate_htmlpage(
 
 def parse_results_file(f):
     with open(f) as rfile:
-        for line in rfile:
+        for idx, line in enumerate(rfile):
+
+            # skip the header
+            if is_header_in_file and idx==0:
+                continue
 
             (
-                feature,
-                MonitorGroup,
                 name,
+                category,
                 testrun,
-                categoryid,
-                componentid,
+                # categoryid,
+                # componentid,
                 status,
-                desc,
+                description,
                 ) = line.strip().split(',')
             hash_data = dict(
-                feature=feature,
-                MonitorGroup=MonitorGroup,
                 name=name,
+                category=category,
                 testrun=testrun,
-                categoryid=categoryid,
-                componentid=componentid,
+                # categoryid=categoryid,
+                # componentid=componentid,
                 status=status,
-                desc=desc,
+                description=description,
                 )
-            if not feature in feature_map:
-                feature_map[feature] = {}
+            if not name in feature_map:
+                feature_map[name] = {}
 
-            if not MonitorGroup in feature_map[feature]:
-                feature_map[feature][MonitorGroup] = {}
+            if not category in feature_map[name]:
+                feature_map[name][category] = {}
 
-            if not 'total' in feature_map[feature][MonitorGroup]:
-                feature_map[feature][MonitorGroup]['total'] = 0
-            if not 'failed' in feature_map[feature][MonitorGroup]:
-                feature_map[feature][MonitorGroup]['failed'] = 0
-            if not 'passed' in feature_map[feature][MonitorGroup]:
-                feature_map[feature][MonitorGroup]['passed'] = 0
+            if not 'total' in feature_map[name][category]:
+                feature_map[name][category]['total'] = 0
+            if not 'failed' in feature_map[name][category]:
+                feature_map[name][category]['failed'] = 0
+            if not 'passed' in feature_map[name][category]:
+                feature_map[name][category]['passed'] = 0
 
             if status == 'fail':
                 failed_cases.append(hash_data)
-                feature_map[feature][MonitorGroup]['failed'] += 1
+                feature_map[name][category]['failed'] += 1
             else:
 
                 passed_cases.append(hash_data)
-                feature_map[feature][MonitorGroup]['passed'] += 1
+                feature_map[name][category]['passed'] += 1
 
-            feature_map[feature][MonitorGroup]['total'] += 1
+            feature_map[name][category]['total'] += 1
 
 
 def gettabledata(category):
