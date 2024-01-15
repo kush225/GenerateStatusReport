@@ -58,7 +58,7 @@ def generate_htmlpage(
     page.br()
 
     page.table()
-    page.caption('Smoke Results', _class='lead')
+    page.caption(f'{category.capitalize()} Results', _class='lead')
 
     page.tr()
     for header in HEADERS:
