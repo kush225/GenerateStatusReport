@@ -3,7 +3,7 @@
 
 import markup
 import argparse
-from collections import defaultdict, OrderedDict
+import csv
 
 HEADERS = ['Category', 'Total', 'Passed', 'Failed']
 is_header_in_file = True
@@ -133,53 +133,38 @@ def generate_htmlpage(
 
 
 def parse_results_file(f):
-    with open(f) as rfile:
-        for idx, line in enumerate(rfile):
+    data = []
+    with open(f, 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            data.append(row)
+        
+    for line in data:
+        hash_data = dict(line)
+        name, category, testrun, status, description  = [v[1] for v in hash_data.items()]
+        
+        if not name in feature_map:
+            feature_map[name] = {}
 
-            # skip the header
-            if is_header_in_file and idx==0:
-                continue
+        if not category in feature_map[name]:
+            feature_map[name][category] = {}
 
-            (
-                name,
-                category,
-                testrun,
-                # categoryid,
-                # componentid,
-                status,
-                description,
-                ) = line.strip().split(',')
-            hash_data = dict(
-                name=name,
-                category=category,
-                testrun=testrun,
-                # categoryid=categoryid,
-                # componentid=componentid,
-                status=status,
-                description=description,
-                )
-            if not name in feature_map:
-                feature_map[name] = {}
+        if not 'total' in feature_map[name][category]:
+            feature_map[name][category]['total'] = 0
+        if not 'failed' in feature_map[name][category]:
+            feature_map[name][category]['failed'] = 0
+        if not 'passed' in feature_map[name][category]:
+            feature_map[name][category]['passed'] = 0
 
-            if not category in feature_map[name]:
-                feature_map[name][category] = {}
+        if status == 'fail':
+            failed_cases.append(hash_data)
+            feature_map[name][category]['failed'] += 1
+        else:
 
-            if not 'total' in feature_map[name][category]:
-                feature_map[name][category]['total'] = 0
-            if not 'failed' in feature_map[name][category]:
-                feature_map[name][category]['failed'] = 0
-            if not 'passed' in feature_map[name][category]:
-                feature_map[name][category]['passed'] = 0
+            passed_cases.append(hash_data)
+            feature_map[name][category]['passed'] += 1
 
-            if status == 'fail':
-                failed_cases.append(hash_data)
-                feature_map[name][category]['failed'] += 1
-            else:
-
-                passed_cases.append(hash_data)
-                feature_map[name][category]['passed'] += 1
-
-            feature_map[name][category]['total'] += 1
+        feature_map[name][category]['total'] += 1
 
 
 def gettabledata(category):
@@ -201,7 +186,7 @@ if __name__ == '__main__':
                         required=True)
     parser.add_argument('-o', '--outfile',
                         help='the outfile to write to',
-                        default='/tmp/mail.body.html')
+                        default='/tmp/output.html')
     parser.add_argument('-s', '--starttime', help='The startime',
                         required=True)
     parser.add_argument('-e', '--endtime', help='The endtime',

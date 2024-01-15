@@ -2,5 +2,5 @@ name,category,testrun,status,description
 ETL,test,101,pass,
 ETL,test,102,pass,
 ETL,test,103,pass,
-ETL,test,104,fail,Exception occured nullpointer
+ETL,live,104,fail,Exception occured nullpointer
 DataDump,live,102,fail,Exception divide by zero
